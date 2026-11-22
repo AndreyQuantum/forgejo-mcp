@@ -1,0 +1,14 @@
+# build output
+/forgejo-mcp
+/forgejo-mcp.exe
+/dist/
+*.test
+*.out
+coverage.*
+
+# local state
+.env
+*.token
+.vscode/
+.idea/
+.claude/

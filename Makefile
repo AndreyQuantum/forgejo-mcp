@@ -1,0 +1,7 @@
+.PHONY: build test
+
+build:
+	CGO_ENABLED=0 go build -trimpath -o forgejo-mcp ./cmd/forgejo-mcp
+
+test:
+	go test ./...

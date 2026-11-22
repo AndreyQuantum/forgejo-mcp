@@ -1,0 +1,8 @@
+run 1234 no.56 failure | ci.yml | push main 8a1b2c3d | by alice | 1m03s | 2026-11-22 09:50
+run 1240 no.12 waiting | lint.yml | pull_request #42 | by bob | 2026-11-22 09:51 | approval-needed
+run 7 running
+job 5678 build failure a1 needs:lint on:docker
+job 5679 lint waiting
+  step 3 Run tests failure 12s
+  step 4 Post waiting
+1 failed (build), 1 running (e2e), 1 ok (lint), 1 skipped (test)

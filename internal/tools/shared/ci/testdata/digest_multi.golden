@@ -1,0 +1,21 @@
+target: pr #42 (branch fix/login)
+run 1234 no.56 failure | ci.yml | push fix/login 77aa11bb | by alice | 2026-11-22 09:50
+jobs: 2 failed (build (linux), build (mac)), 1 ok (lint), 1 skipped (test)
+failed job 5678 "build (linux)" step 1 "Run tests" (12s)
+  matches: 7: FAIL TestSessionRefresh (0.02s)
+  --- tail (last 4 lines) ---
+  ok step 4
+  ok step 5
+  FAIL TestSessionRefresh (0.02s)
+  exit status 1
+failed job 5679 "build (mac)" step 1 "Run tests" (12s)
+  same as job 5678
+run 1240 no.12 running | lint.yml | pull_request #42 77aa11bb | by alice | 2026-11-22 09:51
+jobs: 1 failed (lint), 1 running (vet)
+failed job 5702 "lint" step 1 "Run tests" (12s)
+  --- tail (last 4 lines) ---
+  ok step 4
+  ok step 5
+  main.go:9: unused variable x
+  exit status 1
+ok: docs.yml

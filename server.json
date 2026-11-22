@@ -1,0 +1,24 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.AndreyQuantum/forgejo-mcp",
+  "description": "Token-efficient MCP server for Forgejo: PRs, CI runs and logs, runners, issues, repos.",
+  "repository": {
+    "url": "https://github.com/AndreyQuantum/forgejo-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/andreyquantum/forgejo-mcp:0.1.0",
+      "transport": {"type": "stdio"},
+      "environmentVariables": [
+        {"name": "FORGEJO_URL", "description": "Forgejo base URL, e.g. https://forgejo.example.com", "isRequired": true},
+        {"name": "FORGEJO_TOKEN", "description": "Personal access token (optional: anonymous access is read-only)", "isRequired": false, "isSecret": true},
+        {"name": "FORGEJO_REPO", "description": "Default repo owner/name (optional)", "isRequired": false},
+        {"name": "FORGEJO_TOOLSETS", "description": "Comma list of toolsets (optional)", "isRequired": false},
+        {"name": "FORGEJO_READ_ONLY", "description": "1 to hide mutating actions (optional)", "isRequired": false}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+job 5678 "build" attempt 1 step 1 "Checkout" [failure] | 2.3KB total | first 4 lines
+> Set up
+cloning
+downloading (x5)
+100%
+[truncated: first 4 lines, 38B of 2.3KB; pass first=N, grep=, or step=]

@@ -1,0 +1,33 @@
+# Throwaway Forgejo 17.0.2 for the integration tests (docs/DESIGN.md 12.2).
+# No credentials live here: bootstrap.sh creates the admin user and token.
+name: fmcp-it
+
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:17.0.2
+    container_name: fmcp-it-forgejo
+    environment:
+      FORGEJO__database__DB_TYPE: sqlite3
+      FORGEJO__security__INSTALL_LOCK: "true"
+      FORGEJO__server__ROOT_URL: http://forgejo:3000/
+      FORGEJO__server__DOMAIN: forgejo
+      FORGEJO__actions__ENABLED: "true"
+      FORGEJO__service__DISABLE_REGISTRATION: "true"
+      FORGEJO__api__ENABLE_SWAGGER: "true"
+      FORGEJO__repository__DEFAULT_BRANCH: main
+    ports:
+      - "${FORGEJO_TEST_PORT:-3000}:3000"
+    networks:
+      default:
+        aliases:
+          - forgejo
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/healthz || exit 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 5s
+
+networks:
+  default:
+    name: fmcp-it

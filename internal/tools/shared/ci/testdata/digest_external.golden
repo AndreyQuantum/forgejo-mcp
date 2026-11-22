@@ -1,0 +1,3 @@
+no Actions run for sha abc12300; latest: none
+external checks failing:
+  failure ci/external | build broke | https://ci.example/1

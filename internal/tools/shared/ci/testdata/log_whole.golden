@@ -1,0 +1,49 @@
+job 5678 "build" attempt 1 step 0 "Set up job" [failure] | 2.3KB total | last 47 lines
+> Set up
+cloning
+downloading (x5)
+100%
+ok pkg00 0.01s
+ok pkg01 0.01s
+ok pkg02 0.01s
+ok pkg03 0.01s
+ok pkg04 0.01s
+ok pkg05 0.01s
+ok pkg06 0.01s
+ok pkg07 0.01s
+ok pkg08 0.01s
+ok pkg09 0.01s
+ok pkg10 0.01s
+ok pkg11 0.01s
+ok pkg12 0.01s
+ok pkg13 0.01s
+ok pkg14 0.01s
+ok pkg15 0.01s
+ok pkg16 0.01s
+ok pkg17 0.01s
+ok pkg18 0.01s
+ok pkg19 0.01s
+ok pkg20 0.01s
+ok pkg21 0.01s
+ok pkg22 0.01s
+ok pkg23 0.01s
+ok pkg24 0.01s
+ok pkg25 0.01s
+ok pkg26 0.01s
+ok pkg27 0.01s
+ok pkg28 0.01s
+ok pkg29 0.01s
+ok pkg30 0.01s
+ok pkg31 0.01s
+ok pkg32 0.01s
+ok pkg33 0.01s
+ok pkg34 0.01s
+ok pkg35 0.01s
+ok pkg36 0.01s
+ok pkg37 0.01s
+ok pkg38 0.01s
+ok pkg39 0.01s
+FAIL TestSessionRefresh (0.02s)
+    session_test.go:44: expected 200, got 500
+exit status 1
+next_offset: 2319

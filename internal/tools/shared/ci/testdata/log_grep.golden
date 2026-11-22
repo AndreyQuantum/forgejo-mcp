@@ -1,0 +1,3 @@
+job 5678 "build" attempt 1 step 2 "Run tests" [failure] | matches 1 of 1 lines containing "FAIL"
+FAIL TestSessionRefresh (0.02s)
+(no context available; use step/tail to read around)

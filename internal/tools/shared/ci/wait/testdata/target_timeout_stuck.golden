@@ -1,0 +1,5 @@
+target: pr #42 (branch fix/login)
+verdict: timeout | waited 8s | pr #42 head 8a1b2c3d pending (ci / build (push), ci.yml)
+ci: pending 0/1 | pending: ci / build (push) | runs: run 1236 no.58 waiting 41s
+resume: ci_wait pr=42
+hint: no online runner covers runs-on [docker]; online runners: 1 [ubuntu-latest]

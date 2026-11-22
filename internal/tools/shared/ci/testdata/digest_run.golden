@@ -1,0 +1,9 @@
+run 1234 no.56 failure | ci.yml | push fix/login 77aa11bb
+jobs: 2 failed (build (linux), build (mac)), 1 ok (lint), 1 skipped (test)
+failed job 5678 "build (linux)" step 1 "Run tests" (12s)
+  matches: 7: FAIL TestSessionRefresh (0.02s)
+  --- tail (last 3 lines) ---
+  ok step 5
+  FAIL TestSessionRefresh (0.02s)
+  exit status 1
++1 more failed jobs: build (mac) (5679)

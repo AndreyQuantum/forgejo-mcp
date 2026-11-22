@@ -1,0 +1,8 @@
+target: pr #42 (branch fix/login)
+verdict: failed | waited 0s | pr #42 head 8a1b2c3d
+ci: failure 0/1 | failing: ci / build (push) (d-ci / build (push)) | runs: run 1236 no.58 failure 41s
+failed job 5678 "build" step 1 "Run tests"
+  matches: 1: FAIL TestX
+  --- tail (last 2 lines) ---
+  FAIL TestX
+  exit status 1

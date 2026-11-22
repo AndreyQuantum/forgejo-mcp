@@ -1,0 +1,48 @@
+version: 2
+project_name: forgejo-mcp
+
+builds:
+  - id: forgejo-mcp
+    main: ./cmd/forgejo-mcp
+    binary: forgejo-mcp
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}} -X main.date={{.Date}}
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files: [LICENSE, README.md]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude: ["^docs:", "^test:", "^chore:"]
+
+# NOTE: `dockers_v2` needs a recent goreleaser (pinned via `version: "~> v2"` in
+# the workflows). If the pinned version rejects the key, switch to `dockers`.
+dockers_v2:
+  - images:
+      - ghcr.io/andreyquantum/forgejo-mcp
+    dockerfile: Dockerfile
+    platforms: [linux/amd64, linux/arm64]
+    tags:
+      - "{{ .Version }}"
+      - "{{ if not .Prerelease }}latest{{ end }}"
+    labels:
+      io.modelcontextprotocol.server.name: io.github.AndreyQuantum/forgejo-mcp
+      org.opencontainers.image.source: https://github.com/AndreyQuantum/forgejo-mcp
+
+# The owner reviews and publishes the release manually.
+release:
+  draft: true

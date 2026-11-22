@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -66,7 +67,9 @@ func TestStdioSmoke(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var stderr bytes.Buffer
+	// The child writes stderr from an os/exec copy goroutine while the test
+	// reads it, so the buffer needs a lock.
+	var stderr lockedBuffer
 	cmd.Stderr = &stderr
 	if err := cmd.Start(); err != nil {
 		t.Fatal(err)
@@ -177,4 +180,22 @@ func TestCheck(t *testing.T) {
 	if err != nil || !strings.HasPrefix(string(out), "ok: forgejo 17.0.2") || !strings.Contains(string(out), "alice (admin)") {
 		t.Errorf("--check: %q %v", out, err)
 	}
+}
+
+// lockedBuffer is a bytes.Buffer safe for one writer and concurrent readers.
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
 }

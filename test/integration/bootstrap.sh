@@ -5,12 +5,12 @@
 #
 #   eval "$(test/integration/bootstrap.sh)"
 #
-# Diagnostics go to stderr; stdout carries only the export line.
+# Diagnostics go to stderr; stdout carries only the two export lines.
 set -euo pipefail
 
 if [[ -n "${FORGEJO_TEST_URL:-}" && -n "${FORGEJO_TEST_TOKEN:-}" ]]; then
   echo "bootstrap: reusing instance at ${FORGEJO_TEST_URL}" >&2
-  printf 'export FORGEJO_TEST_URL=%q FORGEJO_TEST_TOKEN=%q\n' "$FORGEJO_TEST_URL" "$FORGEJO_TEST_TOKEN"
+  printf 'export FORGEJO_TEST_URL=%q\nexport FORGEJO_TEST_TOKEN=%q\n' "$FORGEJO_TEST_URL" "$FORGEJO_TEST_TOKEN"
   exit 0
 fi
 
@@ -34,4 +34,4 @@ if [[ -z "$TOKEN" ]]; then
   exit 1
 fi
 
-printf 'export FORGEJO_TEST_URL=%q FORGEJO_TEST_TOKEN=%q\n' "http://localhost:${FORGEJO_TEST_PORT}" "$TOKEN"
+printf 'export FORGEJO_TEST_URL=%q\nexport FORGEJO_TEST_TOKEN=%q\n' "http://localhost:${FORGEJO_TEST_PORT}" "$TOKEN"

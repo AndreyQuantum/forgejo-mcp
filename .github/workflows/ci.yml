@@ -120,6 +120,8 @@ jobs:
           # the token is masked in the log before it is exported to later steps
           . "$RUNNER_TEMP/it.env"
           echo "::add-mask::$FORGEJO_TEST_TOKEN"
+          # fail here instead of letting the integration tests skip silently
+          test -n "$FORGEJO_TEST_URL" && test -n "$FORGEJO_TEST_TOKEN" && test "$(wc -l < "$RUNNER_TEMP/it.env")" -eq 2
           cat "$RUNNER_TEMP/it.env" | sed 's/^export //' >> "$GITHUB_ENV"
       - name: Integration tests
         env:

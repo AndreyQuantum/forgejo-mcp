@@ -1,6 +1,6 @@
 # statuses 5/5 page 1/1
-pending ci/external | queued
-failure ci/lint | 2 issues | https://ci.example.com/lint/1
-success ci/unit
-success ci/lint
 success ci/external
+success ci/lint
+success ci/unit
+failure ci/lint | 2 issues | https://ci.example.com/lint/1
+pending ci/external | queued

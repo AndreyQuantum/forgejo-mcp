@@ -164,7 +164,10 @@ func (t checksTool) list(c *tools.Call, p *checksParams) (*tools.Result, error) 
 		return nil, err
 	}
 	page, limit := pageArgs(c, p.Page, p.Limit)
-	q := url.Values{}
+	// The default order (created_unix DESC) is unstable for statuses posted
+	// within the same second. "leastindex" is Forgejo's name for index DESC,
+	// i.e. newest first with a strict tie-break.
+	q := url.Values{"sort": {"leastindex"}}
 	if p.State != "" {
 		q.Set("state", p.State)
 	}

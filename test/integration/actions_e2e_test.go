@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -202,6 +203,14 @@ func TestActionsE2E(t *testing.T) {
 		if t.Failed() {
 			if logs, err := exec.Command("docker", "logs", "--tail", "30", cname).CombinedOutput(); err == nil {
 				t.Logf("runner container log tail:\n%s", logs)
+			}
+		}
+		// The runner runs as root and leaves root-owned caches in the bind
+		// mount; on Linux the test user cannot delete them, so open them up
+		// before t.TempDir's cleanup (registered earlier, runs later).
+		if runtime.GOOS != "windows" {
+			if err := exec.Command("docker", "exec", cname, "chmod", "-R", "a+rwX", "/data").Run(); err != nil {
+				_ = exec.Command("docker", "run", "--rm", "-v", dir+":/data", "--entrypoint", "chmod", image, "-R", "a+rwX", "/data").Run()
 			}
 		}
 		_ = exec.Command("docker", "rm", "-f", cname).Run()

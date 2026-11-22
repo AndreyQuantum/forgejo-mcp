@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -177,12 +176,10 @@ func TestActionsE2E(t *testing.T) {
 	if from, to := strings.TrimRight(instURL, "/"), e2eRunnerAddress(t); from != to {
 		line = strings.Replace(line, `"address":"`+from+`"`, `"address":"`+to+`"`, 1)
 	}
-	dir := filepath.Join(t.TempDir(), "runner")
-	if err := os.MkdirAll(filepath.Join(dir, "work"), 0o777); err != nil {
-		t.Fatal(err)
-	}
-	_ = os.Chmod(dir, 0o777)
-	_ = os.Chmod(filepath.Join(dir, "work"), 0o777)
+	// The runner state is copied into the container instead of bind-mounted:
+	// the runner writes caches and work dirs under its own uid, which the
+	// test user on a Linux host could not delete afterwards.
+	dir := t.TempDir()
 	write := func(name, content string) {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
 			t.Fatal(err)
@@ -191,30 +188,25 @@ func TestActionsE2E(t *testing.T) {
 	write(".runner", line+"\n")
 	write("config.yml", "log:\n  level: info\nrunner:\n  file: /data/.runner\n  capacity: 1\nhost:\n  workdir_parent: /data/work\n")
 
-	// 3. start the container.
+	// 3. create the container, copy the config in, start it.
 	cname := uniqueName("fmcp-it-runner")
-	runArgs := []string{"run", "-d", "--name", cname, "--add-host", "host.docker.internal:host-gateway", "-v", dir + ":/data"}
+	createArgs := []string{"create", "--name", cname, "--add-host", "host.docker.internal:host-gateway"}
 	if n := os.Getenv("FORGEJO_TEST_DOCKER_NETWORK"); n != "" {
-		runArgs = append(runArgs, "--network", n)
+		createArgs = append(createArgs, "--network", n)
 	}
-	runArgs = append(runArgs, image, "forgejo-runner", "daemon", "--config", "/data/config.yml")
-	docker(t, runArgs...)
+	createArgs = append(createArgs, image, "forgejo-runner", "daemon", "--config", "/data/config.yml")
+	docker(t, createArgs...)
 	t.Cleanup(func() {
 		if t.Failed() {
 			if logs, err := exec.Command("docker", "logs", "--tail", "30", cname).CombinedOutput(); err == nil {
 				t.Logf("runner container log tail:\n%s", logs)
 			}
 		}
-		// The runner runs as root and leaves root-owned caches in the bind
-		// mount; on Linux the test user cannot delete them, so open them up
-		// before t.TempDir's cleanup (registered earlier, runs later).
-		if runtime.GOOS != "windows" {
-			if err := exec.Command("docker", "exec", cname, "chmod", "-R", "a+rwX", "/data").Run(); err != nil {
-				_ = exec.Command("docker", "run", "--rm", "-v", dir+":/data", "--entrypoint", "chmod", image, "-R", "a+rwX", "/data").Run()
-			}
-		}
 		_ = exec.Command("docker", "rm", "-f", cname).Run()
 	})
+	docker(t, "cp", filepath.Join(dir, ".runner"), cname+":/data/.runner")
+	docker(t, "cp", filepath.Join(dir, "config.yml"), cname+":/data/config.yml")
+	docker(t, "start", cname)
 
 	// 4. wait until the runner is online.
 	deadline := time.Now().Add(60 * time.Second)

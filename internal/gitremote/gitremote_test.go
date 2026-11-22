@@ -382,3 +382,23 @@ func TestParseGitConfig(t *testing.T) {
 		t.Errorf("legacy form: %+v", secs[2])
 	}
 }
+
+func TestLocateFollowsGitSymlink(t *testing.T) {
+	root := t.TempDir()
+	real := filepath.Join(root, "real-git")
+	if err := os.MkdirAll(real, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	work := filepath.Join(root, "work")
+	if err := os.MkdirAll(work, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(real, filepath.Join(work, ".git")); err != nil {
+		t.Skip("symlinks not available: " + err.Error())
+	}
+	d := NewDetector(Options{InstanceURL: "https://forge.example.com", Dir: work})
+	loc, err := d.locate()
+	if err != nil || loc.gitDir != filepath.Join(work, ".git") {
+		t.Errorf("loc=%+v err=%v", loc, err)
+	}
+}

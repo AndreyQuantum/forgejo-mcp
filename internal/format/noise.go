@@ -29,14 +29,27 @@ var repoKeys = map[string]bool{"repository": true, "repo": true}
 // user and repository objects, unwraps list wrappers. The wrapper's
 // total_count is returned as the total; it is -1 when the value was not a
 // wrapper or the wrapper carries no total (the {"ok":true,"data":[...]} form).
+//
+// Order contract (section 9.1): stripping collapses nested user/owner/author
+// objects to their login string and repository objects to full_name, so a
+// pick path such as "user.login" can no longer descend. With a non-empty
+// pick, callers must run Unwrap and then Pick on the un-stripped value and
+// call StripNoise only when there is no pick.
 func StripNoise(v any) (out any, total int64) {
+	v, total = Unwrap(v)
+	return stripValue(v), total
+}
+
+// Unwrap removes the list wrapper of v (see StripNoise) without stripping
+// anything else. total is -1 when v was not a wrapper or carries no total.
+func Unwrap(v any) (out any, total int64) {
 	total = -1
 	if m, ok := v.(map[string]any); ok {
 		if arr, tc, ok := unwrap(m); ok {
 			v, total = arr, tc
 		}
 	}
-	return stripValue(v), total
+	return v, total
 }
 
 // unwrap detects {"ok":true,"data":[...]} and {"<list>":[...],"total_count":N}.

@@ -77,6 +77,7 @@ func run(args []string, getenv func(string) string) int {
 		InsecureTLS: cfg.TLSInsecure,
 		UserAgent:   "forgejo-mcp/" + buildVersion(),
 		Clock:       clock.Real(),
+		Debug:       cfg.Debug,
 	})
 
 	if cfg.Check {

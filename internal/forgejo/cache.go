@@ -65,3 +65,14 @@ func (c *Cache) Invalidate(prefix string) {
 		}
 	}
 }
+
+// Put stores val under key; a zero or negative ttl means "never expires".
+func (c *Cache) Put(key string, val any, ttl time.Duration) {
+	e := cacheEntry{val: val}
+	if ttl > 0 {
+		e.expires = c.clk.Now().Add(ttl)
+	}
+	c.mu.Lock()
+	c.m[key] = e
+	c.mu.Unlock()
+}

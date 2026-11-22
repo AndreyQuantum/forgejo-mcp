@@ -548,3 +548,29 @@ func TestGoldenRenders(t *testing.T) {
 	}
 	golden(t, "render_log", lb.String())
 }
+
+func TestUnwrapThenPickKeepsNestedPaths(t *testing.T) {
+	var v any
+	if err := json.Unmarshal([]byte(`{"total_count":1,"issues":[{"number":3,"title":"t","user":{"login":"alice","id":4},"labels":[{"name":"bug"}]}]}`), &v); err != nil {
+		t.Fatal(err)
+	}
+	un, total := Unwrap(v)
+	if total != 1 {
+		t.Fatalf("total = %d", total)
+	}
+	got, err := Pick(un, []string{"number", "user.login:by", "labels[].name:labels"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"by":"alice"`, `"number":3`, `bug`} {
+		if !strings.Contains(got, want) {
+			t.Errorf("pick output %q lacks %s", got, want)
+		}
+	}
+	// documents why the order matters: stripped input loses the path
+	stripped, _ := StripNoise(v)
+	lost, _ := Pick(stripped, []string{"user.login:by"})
+	if strings.Contains(lost, "alice") {
+		t.Errorf("StripNoise then Pick unexpectedly kept by: %s", lost)
+	}
+}

@@ -224,7 +224,7 @@ func newAPIError(method, path string, status int, contentType string, body []byt
 		// rule 1: JSON without a message shows its first 300 chars compactly
 		e.Message = redact(oneLineTrunc(raw, 300))
 	}
-	if status == http.StatusBadRequest && method == http.MethodDelete && reContents.MatchString(path) && strings.Contains(lower, "sha") {
+	if status == http.StatusBadRequest && method == http.MethodDelete && reContents.MatchString(path) && (strings.Contains(lower, "sha") || strings.Contains(lower, "does not match")) {
 		e.Hint = "file changed since read; re-read and retry"
 	}
 	return e
@@ -247,7 +247,11 @@ func mapMethodNotAllowed(e *APIError, method, path, lower string) {
 		e.Hint = "wait for checks (ci_wait) or use when_green=true"
 	case strings.Contains(lower, "work in progress"):
 		e.Hint = "pr edit draft=false"
-	case strings.Contains(lower, "not allowed to merge"):
+	case strings.Contains(lower, "behind"):
+		e.Hint = "head branch is behind base; pr update, then retry"
+	case strings.Contains(lower, "requested changes"), strings.Contains(lower, "official review"):
+		e.Hint = "address the reviews; see pr get / pr reviews"
+	case strings.Contains(lower, "user not allowed to merge"):
 		e.Hint = "needs write access or merge whitelist; force needs admin"
 	}
 }

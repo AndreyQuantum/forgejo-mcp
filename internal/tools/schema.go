@@ -76,7 +76,14 @@ func BuildInputSchema(s Spec, allowed []Action) (*jsonschema.Schema, error) {
 		if name == "action" || name == "repo" || name == "help" {
 			continue
 		}
-		p.Description = prefixFor(name, allowed) + p.Description
+		prefix := prefixFor(name, allowed)
+		if prefix == "[-] " {
+			// no remaining action reads it (read-only mode, FORGEJO_DENY):
+			// keep the schema small
+			delete(sc.Properties, name)
+			continue
+		}
+		p.Description = prefix + p.Description
 	}
 	sc.PropertyOrder = nil
 	return sc, nil
@@ -106,7 +113,7 @@ func prefixFor(name string, allowed []Action) string {
 		if reqAll {
 			return "[all*] "
 		}
-		return "[all] "
+		return ""
 	}
 	return "[" + strings.Join(parts, ",") + "] "
 }

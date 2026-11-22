@@ -145,3 +145,13 @@ func (h headerRT) RoundTrip(r *http.Request) (*http.Response, error) {
 	r.Header.Set("X-Forgejo-Token", h.tok)
 	return http.DefaultTransport.RoundTrip(r)
 }
+
+func TestResolveToolsetsLeadingSubtraction(t *testing.T) {
+	got, err := tools.ResolveToolsets("-packages")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["packages"] || !got["repos"] || !got["pulls"] || !got["meta"] {
+		t.Errorf("got %v", got)
+	}
+}

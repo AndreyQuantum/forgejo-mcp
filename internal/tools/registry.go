@@ -152,11 +152,19 @@ func (r *Registry) Specs() []Spec { return r.specs }
 func ResolveToolsets(spec string) (map[string]bool, error) {
 	set := map[string]bool{}
 	valid := strings.Join(Toolsets, ",")
+	first := true
 	for _, tok := range strings.Split(spec, ",") {
 		tok = strings.TrimSpace(tok)
 		if tok == "" {
 			continue
 		}
+		if first && strings.HasPrefix(tok, "-") {
+			// "-packages" means "the defaults minus packages"
+			for _, d := range strings.Split(config.Defaults().Toolsets, ",") {
+				set[strings.TrimSpace(d)] = true
+			}
+		}
+		first = false
 		neg := strings.HasPrefix(tok, "-")
 		name := strings.TrimPrefix(tok, "-")
 		switch {
@@ -399,6 +407,12 @@ var (
 	reOwnerRepo = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 	stderrLog   = log.New(os.Stderr, "forgejo-mcp: ", log.LstdFlags)
 )
+
+// validOwnerRepo accepts an owner or repo name: letters, digits, . _ - but
+// never the dot segments "." and "..".
+func validOwnerRepo(s string) bool {
+	return s != "." && s != ".." && reOwnerRepo.MatchString(s)
+}
 
 // alwaysAccepted are params every call may carry without being "ignored".
 var alwaysAccepted = []string{"action", "repo", "help", "confirm", "max_chars"}
@@ -646,7 +660,7 @@ func (h *toolHandler) run(ctx context.Context, req *mcp.CallToolRequest, env *En
 		if err != nil {
 			return fail("%s", redact(env, err.Error()))
 		}
-		if !reOwnerRepo.MatchString(o) || !reOwnerRepo.MatchString(n) {
+		if !validOwnerRepo(o) || !validOwnerRepo(n) {
 			return fail("invalid: repo %q (owner and name allow letters, digits, . _ -)", o+"/"+n)
 		}
 		owner, repo = o, n

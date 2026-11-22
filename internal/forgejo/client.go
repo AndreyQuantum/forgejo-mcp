@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"math/rand/v2"
 	"net"
 	"net/http"
@@ -34,6 +35,7 @@ const (
 	maxRetryAfter   = 10 * time.Second
 	versionTTL      = 0 // process lifetime
 	meTTL           = 10 * time.Minute
+	limitsFailTTL   = 5 * time.Minute
 	fallbackDefault = 30
 	fallbackMax     = 50
 )
@@ -51,6 +53,7 @@ type Config struct {
 	UserAgent   string
 	HTTPClient  *http.Client // tests inject a Transport
 	Clock       clock.Clock  // nil = real; retries/backoff sleep through it
+	Debug       bool         // log method, path, status and ms of every exchange to stderr
 }
 
 // Client talks to one Forgejo instance.
@@ -62,6 +65,7 @@ type Client struct {
 	hc      *http.Client
 	clk     clock.Clock
 	tok8    string
+	debugLn *log.Logger
 	redact  []string
 }
 
@@ -79,6 +83,9 @@ func New(cfg Config) *Client {
 		c.clk = clock.Real()
 	}
 	c.cache = NewCacheClock(c.clk)
+	if cfg.Debug {
+		c.debugLn = log.New(os.Stderr, "forgejo-mcp: ", log.LstdFlags)
+	}
 
 	u, err := url.Parse(strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/"))
 	switch {
@@ -138,14 +145,13 @@ func buildHTTPClient(cfg Config) (*http.Client, error) {
 		}
 	}
 	tr := &http.Transport{
-		Proxy:                 http.ProxyFromEnvironment,
-		DialContext:           (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
-		TLSClientConfig:       tlsCfg,
-		MaxIdleConnsPerHost:   8,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ResponseHeaderTimeout: cfg.Timeout,
-		ForceAttemptHTTP2:     true,
+		Proxy:               http.ProxyFromEnvironment,
+		DialContext:         (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+		TLSClientConfig:     tlsCfg,
+		MaxIdleConnsPerHost: 8,
+		IdleConnTimeout:     90 * time.Second,
+		TLSHandshakeTimeout: 10 * time.Second,
+		ForceAttemptHTTP2:   true,
 	}
 	return &http.Client{
 		Transport:     tr,
@@ -205,15 +211,16 @@ func (c *Client) host() string {
 
 // Request describes one API call.
 type Request struct {
-	Method, Path string // Path relative to /api/v1, ALREADY escaped (use Path()/Seg())
-	Query        url.Values
-	JSON         any       // marshalled, sets Content-Type: application/json
-	Body         io.Reader // raw body (file upload); with ContentType
-	ContentType  string
-	Header       http.Header   // extra, e.g. Range
-	Timeout      time.Duration // override (default cfg.Timeout)
-	MaxBody      int64         // default 8 MiB; excess is dropped and Response.Truncated=true
-	API          string        // "" = /api/v1, "forgejo" = /api/forgejo/v1, "root" = no prefix
+	Method, Path  string // Path relative to /api/v1, ALREADY escaped (use Path()/Seg())
+	Query         url.Values
+	JSON          any       // marshalled, sets Content-Type: application/json
+	Body          io.Reader // raw body (file upload); with ContentType. Streamed for non-GET/HEAD
+	ContentLength int64     // length of Body when known (> 0); otherwise the body is sent chunked
+	ContentType   string
+	Header        http.Header   // extra, e.g. Range
+	Timeout       time.Duration // override (default cfg.Timeout)
+	MaxBody       int64         // default 8 MiB; excess is dropped and Response.Truncated=true
+	API           string        // "" = /api/v1, "forgejo" = /api/forgejo/v1, "root" = no prefix
 }
 
 // Response is a successful (2xx) answer.
@@ -250,11 +257,26 @@ func (c *Client) buildURL(r Request) (*url.URL, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %q: %w", r.Path, err)
 	}
+	if err := rejectDotSegments(p); err != nil {
+		return nil, err
+	}
 	u := &url.URL{Scheme: c.base.Scheme, Host: c.base.Host, Path: plain, RawPath: raw}
 	if len(r.Query) > 0 {
 		u.RawQuery = r.Query.Encode()
 	}
 	return u, nil
+}
+
+// rejectDotSegments refuses a request path with a "." or ".." segment, also
+// when percent-encoded: proxies in front of Forgejo may normalise them and
+// reach another endpoint than the one the tool policy checked.
+func rejectDotSegments(escaped string) error {
+	for _, seg := range strings.Split(escaped, "/") {
+		if u, err := url.PathUnescape(seg); err == nil && (u == "." || u == "..") {
+			return errors.New("invalid: path segment '.' or '..' is not allowed")
+		}
+	}
+	return nil
 }
 
 // attemptResult is the outcome of one HTTP exchange (redirects resolved).
@@ -283,13 +305,13 @@ func (c *Client) do(ctx context.Context, r Request, w io.Writer) (*attemptResult
 		if err != nil {
 			return nil, &APIError{Message: "invalid: cannot encode request body: " + err.Error(), Method: r.Method, Path: r.Path}
 		}
-	case r.Body != nil && w == nil:
+	case r.Body != nil && w == nil && idempotentMethod(r.Method):
 		payload, err = io.ReadAll(r.Body)
 		if err != nil {
 			return nil, &APIError{Message: "invalid: cannot read request body: " + err.Error(), Method: r.Method, Path: r.Path}
 		}
 	}
-	idempotent := r.Method == http.MethodGet || r.Method == http.MethodHead
+	idempotent := idempotentMethod(r.Method)
 	retries := 0
 	if idempotent {
 		retries = maxRetries
@@ -323,6 +345,8 @@ func (c *Client) do(ctx context.Context, r Request, w io.Writer) (*attemptResult
 		}
 	}
 }
+
+func idempotentMethod(m string) bool { return m == http.MethodGet || m == http.MethodHead }
 
 func jitter(d time.Duration) time.Duration {
 	f := 0.8 + 0.4*rand.Float64() //nolint:gosec // jitter, not security
@@ -358,7 +382,9 @@ func (c *Client) attempt(ctx context.Context, r Request, u *url.URL, payload []b
 			req.Header.Del("Authorization")
 			req.Header.Del("Sudo")
 		}
+		began := time.Now()
 		resp, err := c.hc.Do(req)
+		c.debugf(r, resp, err, began)
 		if err != nil {
 			return nil, c.transportError(ctx, actx, r, tmo, err), 0
 		}
@@ -393,6 +419,18 @@ func (c *Client) attempt(ctx context.Context, r Request, u *url.URL, payload []b
 	}
 }
 
+// debugf logs one exchange when FORGEJO_DEBUG is on: never headers or bodies.
+func (c *Client) debugf(r Request, resp *http.Response, err error, began time.Time) {
+	if c.debugLn == nil {
+		return
+	}
+	status := "error"
+	if err == nil {
+		status = strconv.Itoa(resp.StatusCode)
+	}
+	c.debugLn.Printf("http %s %s -> %s %dms", r.Method, c.Redact(r.Path), status, time.Since(began).Milliseconds())
+}
+
 func (c *Client) readResult(actx, ctx context.Context, r Request, resp *http.Response, w io.Writer, tmo time.Duration) (*attemptResult, *APIError) {
 	defer resp.Body.Close()
 	res := &attemptResult{status: resp.StatusCode, header: resp.Header, contentType: resp.Header.Get("Content-Type")}
@@ -423,12 +461,34 @@ func (c *Client) readResult(actx, ctx context.Context, r Request, resp *http.Res
 
 func (c *Client) newRequest(ctx context.Context, r Request, u *url.URL, payload []byte, download bool) (*http.Request, error) {
 	var body io.Reader
-	if payload != nil {
+	streamed := false
+	switch {
+	case payload != nil:
 		body = bytes.NewReader(payload)
+	case r.JSON == nil && r.Body != nil && !download && !idempotentMethod(r.Method):
+		// mutations are never retried or redirected, so the body streams
+		body, streamed = r.Body, true
 	}
 	req, err := http.NewRequestWithContext(ctx, r.Method, u.String(), body)
 	if err != nil {
 		return nil, err
+	}
+	if streamed {
+		switch {
+		case r.ContentLength > 0:
+			req.ContentLength = r.ContentLength
+		default:
+			if f, ok := r.Body.(*os.File); ok {
+				if fi, serr := f.Stat(); serr == nil && fi.Mode().IsRegular() {
+					if pos, perr := f.Seek(0, io.SeekCurrent); perr == nil && fi.Size() > pos {
+						req.ContentLength = fi.Size() - pos
+					}
+				}
+			}
+		}
+		if req.ContentLength == 0 {
+			req.ContentLength = -1 // unknown: chunked
+		}
 	}
 	h := req.Header
 	if download {
@@ -446,7 +506,7 @@ func (c *Client) newRequest(ctx context.Context, r Request, u *url.URL, payload 
 	switch {
 	case r.JSON != nil:
 		h.Set("Content-Type", "application/json")
-	case payload != nil && r.ContentType != "":
+	case (payload != nil || streamed) && r.ContentType != "":
 		h.Set("Content-Type", r.ContentType)
 	}
 	for k, vs := range r.Header {
@@ -654,6 +714,9 @@ func (c *Client) Limits(ctx context.Context) (def, maxItems int) {
 		return s, nil
 	})
 	if err != nil {
+		// remember the fallback for a while so every list does not pay a
+		// failing (and retried) /settings/api request
+		c.cache.Put(c.SharedCacheKey("settings/api"), APISettings{DefaultPagingNum: fallbackDefault, MaxResponseItems: fallbackMax}, limitsFailTTL)
 		return fallbackDefault, fallbackMax
 	}
 	s := v.(APISettings)

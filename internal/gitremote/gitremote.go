@@ -196,6 +196,12 @@ func (d *Detector) locate() (location, error) {
 	for {
 		g := filepath.Join(dir, ".git")
 		if fi, err := os.Lstat(g); err == nil {
+			if fi.Mode()&os.ModeSymlink != 0 {
+				// .git may be a symlink to a directory: follow it
+				if sfi, serr := os.Stat(g); serr == nil {
+					fi = sfi
+				}
+			}
 			if fi.IsDir() {
 				return location{gitDir: g, commonDir: g}, nil
 			}

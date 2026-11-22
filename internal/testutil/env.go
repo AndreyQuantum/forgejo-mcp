@@ -23,13 +23,22 @@ func NewFakeClock() *FakeClock { return clock.NewFake(zeroTime) }
 type EnvOption func(*envOpts)
 
 type envOpts struct {
-	token string
-	cfg   func(*config.Config)
-	repo  string
+	realRetry bool
+	token     string
+	cfg       func(*config.Config)
+	repo      string
 }
 
 // WithToken sets the configured token of the test client.
 func WithToken(tok string) EnvOption { return func(o *envOpts) { o.token = tok } }
+
+// WithRealRetryClock gives the forgejo.Client the wall clock, so retry
+// backoff sleeps really elapse (about 0.3s and 0.9s). By default the client
+// shares the FakeClock, which nobody advances: a fake server answering 429,
+// 502, 503, 504 or dropping the connection on a GET would park in the backoff
+// until the call context times out. Use this option (or Env.Clock.Advance)
+// in error-mapping tests for those statuses.
+func WithRealRetryClock() EnvOption { return func(o *envOpts) { o.realRetry = true } }
 
 // WithConfig mutates the test config before the Env is built.
 func WithConfig(f func(*config.Config)) EnvOption { return func(o *envOpts) { o.cfg = f } }
@@ -65,6 +74,10 @@ func NewEnv(t testing.TB, handler http.Handler, opts ...EnvOption) *tools.Env {
 	}
 
 	fc := NewFakeClock()
+	var clientClock clock.Clock = fc
+	if o.realRetry {
+		clientClock = clock.Real()
+	}
 	client := forgejo.New(forgejo.Config{
 		BaseURL:    cfg.URL,
 		Token:      cfg.Token,
@@ -72,7 +85,8 @@ func NewEnv(t testing.TB, handler http.Handler, opts ...EnvOption) *tools.Env {
 		Sudo:       cfg.Sudo,
 		UserAgent:  "forgejo-mcp/test",
 		HTTPClient: srv.Client(),
-		Clock:      fc,
+		Clock:      clientClock,
+		Debug:      cfg.Debug,
 	})
 	det := gitremote.NewDetector(gitremote.Options{
 		InstanceURL: cfg.URL,

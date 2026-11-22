@@ -123,8 +123,8 @@ func TestSchema(t *testing.T) {
 	if tp := props["labels"].(map[string]any)["type"]; tp != "array" {
 		t.Errorf("labels type = %v", tp)
 	}
-	if _, ok := props["set"]; !ok {
-		t.Error("map[string]any param missing")
+	if _, ok := props["set"]; ok {
+		t.Error("param read by no allowed action must be dropped from the schema")
 	}
 }
 

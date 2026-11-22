@@ -100,15 +100,14 @@ func (t *infoTool) run(c *tools.Call, p *infoParams) (*tools.Result, error) {
 	meLine := "me: anonymous"
 	if cl.Token() != "" {
 		u, err := cl.Me(c.Ctx)
-		switch {
-		case err == nil:
+		if err == nil {
 			me = u
 			meLine = fmt.Sprintf("me: %s (id %d", u.Login, u.ID)
 			if u.IsAdmin {
 				meLine += ", admin"
 			}
 			meLine += ")"
-		default:
+		} else {
 			var ae *forgejo.APIError
 			if errors.As(err, &ae) && ae.Status == http.StatusUnauthorized {
 				meLine = "me: unauthenticated (token rejected)"

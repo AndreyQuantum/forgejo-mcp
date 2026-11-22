@@ -227,6 +227,9 @@ func compactJSON(v any) (string, error) {
 // list items (-1 when the result is not a list).
 func project(p *apiParams, v any) (text string, total int64, n int, err error) {
 	total, n = -1, -1
+	if !p.Raw {
+		maskSecrets(v)
+	}
 	switch {
 	case len(p.Pick) > 0:
 		un, tc := format.Unwrap(v)
@@ -249,6 +252,25 @@ func project(p *apiParams, v any) (text string, total int64, n int, err error) {
 		text, err = compactJSON(out)
 	}
 	return text, total, n, err
+}
+
+// maskSecrets replaces non-empty secret values (webhook authorization
+// headers) in a decoded JSON value, in place, unless the caller asked for raw.
+func maskSecrets(v any) {
+	switch x := v.(type) {
+	case map[string]any:
+		for k, e := range x {
+			if s, ok := e.(string); ok && s != "" && (k == "authorization_header" || k == "secret") {
+				x[k] = "(hidden)"
+				continue
+			}
+			maskSecrets(e)
+		}
+	case []any:
+		for _, e := range x {
+			maskSecrets(e)
+		}
+	}
 }
 
 type contentKind int

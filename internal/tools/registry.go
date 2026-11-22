@@ -220,6 +220,9 @@ func (r *Registry) Build(cfg *config.Config) error {
 	r.denied = map[string]string{}
 	r.covered = map[string]string{}
 	gets := map[string]bool{}
+	cands := map[string]coverCand{}
+	keptEps := map[string]bool{}
+	deniedBy := map[string]string{}
 
 	for _, s := range r.specs {
 		on := sets[s.Toolset]
@@ -227,9 +230,6 @@ func (r *Registry) Build(cfg *config.Config) error {
 		for _, a := range s.Actions {
 			key := s.Name + "." + a.Name
 			for _, ep := range a.Endpoints {
-				if _, ok := r.covered[ep]; !ok {
-					r.covered[ep] = key
-				}
 				if a.Mode != Read && strings.HasPrefix(ep, "GET ") {
 					gets[ep] = true
 				}
@@ -243,16 +243,25 @@ func (r *Registry) Build(cfg *config.Config) error {
 			case cfg.ReadOnly && a.Mode != Read && a.ModeFor == nil:
 				reason = "read-only mode"
 			}
+			for _, ep := range a.Endpoints {
+				c := coverCand{key: key, n: len(a.Endpoints), off: reason != "" && reason != "read-only mode"}
+				if old, ok := cands[ep]; !ok || c.better(old) {
+					cands[ep] = c
+				}
+			}
 			if reason != "" {
 				r.reasons[key] = reason
 				if reason != "read-only mode" {
 					for _, ep := range a.Endpoints {
-						if _, ok := r.denied[ep]; !ok {
-							r.denied[ep] = key
+						if _, ok := deniedBy[ep]; !ok {
+							deniedBy[ep] = key
 						}
 					}
 				}
 				continue
+			}
+			for _, ep := range a.Endpoints {
+				keptEps[ep] = true
 			}
 			keep = append(keep, a)
 		}
@@ -263,6 +272,15 @@ func (r *Registry) Build(cfg *config.Config) error {
 		c.Actions = keep
 		r.enabled = append(r.enabled, c)
 	}
+	// An endpoint is denied only when no surviving action declares it.
+	for ep, key := range deniedBy {
+		if !keptEps[ep] {
+			r.denied[ep] = key
+		}
+	}
+	for ep, c := range cands {
+		r.covered[ep] = c.key
+	}
 	r.sideGets = r.sideGets[:0]
 	for g := range gets {
 		r.sideGets = append(r.sideGets, g)
@@ -270,6 +288,22 @@ func (r *Registry) Build(cfg *config.Config) error {
 	sort.Strings(r.sideGets)
 	r.built = true
 	return nil
+}
+
+// coverCand is a candidate "tool.action" for CoveredBy: an enabled action
+// beats a disabled one, then the action with fewer declared endpoints wins
+// (the one whose main purpose the endpoint is), then declaration order.
+type coverCand struct {
+	key string
+	n   int
+	off bool
+}
+
+func (c coverCand) better(o coverCand) bool {
+	if c.off != o.off {
+		return !c.off
+	}
+	return c.n < o.n
 }
 
 // validate checks Spec invariants (names, toolsets, Single shape).
@@ -325,16 +359,17 @@ func (r *Registry) SideEffectGets() []string { return r.sideGets }
 // CoveredBy returns "tool.action" for an exact "METHOD template", or "".
 func (r *Registry) CoveredBy(endpoint string) string {
 	if r.covered == nil {
+		best, bestN := "", 0
 		for _, s := range r.specs {
 			for _, a := range s.Actions {
 				for _, ep := range a.Endpoints {
-					if endpoint == ep {
-						return s.Name + "." + a.Name
+					if endpoint == ep && (best == "" || len(a.Endpoints) < bestN) {
+						best, bestN = s.Name+"."+a.Name, len(a.Endpoints)
 					}
 				}
 			}
 		}
-		return ""
+		return best
 	}
 	return r.covered[endpoint]
 }

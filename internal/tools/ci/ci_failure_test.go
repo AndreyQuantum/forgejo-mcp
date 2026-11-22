@@ -137,8 +137,8 @@ func TestCIFailureInvalid(t *testing.T) {
 			t.Errorf("%s: err=%v %q", name, isErr, got)
 		}
 	}
-	if n := len(f.calls); n != 0 {
-		t.Errorf("invalid input must not reach the server, got %v", f.calls)
+	if n := len(f.serverCalls()); n != 0 {
+		t.Errorf("invalid input must not reach the server, got %v", f.serverCalls())
 	}
 }
 

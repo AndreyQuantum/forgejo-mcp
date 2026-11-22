@@ -235,7 +235,7 @@ func TestReposTags(t *testing.T) {
 
 	reposWant(t, "get light", mustOK(t, "tag", map[string]any{"action": "get", "repo": full, "name": "v0.1.0", "verbose": true}), "tag v0.1.0", "type: lightweight")
 	out := mustOK(t, "tag", map[string]any{"action": "get", "repo": full, "name": "v0.2.0", "verbose": true})
-	reposWant(t, "get annotated", out, "type: annotated", "message: second release", "tagger:")
+	reposWant(t, "get annotated", out, "type: annotated", "annotation:", "  second release", "tagger:")
 
 	// protection
 	out = mustOK(t, "tag", map[string]any{"action": "protect_set", "repo": full, "set": map[string]any{"name_pattern": "v*", "whitelist_usernames": []string{me}}})

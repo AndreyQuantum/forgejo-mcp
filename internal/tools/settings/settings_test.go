@@ -419,17 +419,14 @@ func TestHookEditAdminScope(t *testing.T) {
 	}
 }
 
-func TestHookEditClearsAuthorizationHeader(t *testing.T) {
+func TestHookEditRejectsEmptyAuthorizationHeader(t *testing.T) {
 	f := newFake(map[string]reply{
 		"GET /api/v1/repos/o/r/hooks/2":   {Body: hookJSON},
 		"PATCH /api/v1/repos/o/r/hooks/2": {Body: hookJSON},
 	})
 	text, isErr := run(t, f, "hook", map[string]any{"action": "edit", "id": 2, "authorization_header": ""})
-	if isErr || text != "ok: edited hook 2 (repo o/r): set authorization_header (cleared)" {
-		t.Fatalf("got %q", text)
-	}
-	if got := mustJSON(t, f.writes()[0].Body); got["authorization_header"] != "" {
-		t.Errorf("body = %s", f.writes()[0].Body)
+	if !isErr || !strings.Contains(text, "cannot be cleared via API") || len(f.writes()) != 0 {
+		t.Fatalf("got %q (writes %d)", text, len(f.writes()))
 	}
 }
 

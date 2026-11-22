@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -147,7 +148,8 @@ func TestVersionAndConfigErrors(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	err = cmd.Run()
-	ee, ok := err.(*exec.ExitError)
+	var ee *exec.ExitError
+	ok := errors.As(err, &ee)
 	if !ok || ee.ExitCode() != 2 {
 		t.Errorf("missing FORGEJO_URL: err=%v want exit 2", err)
 	}

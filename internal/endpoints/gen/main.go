@@ -14,6 +14,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -91,7 +92,11 @@ func load(in string, isURL bool) ([]byte, error) {
 		return os.ReadFile(in)
 	}
 	cl := &http.Client{Timeout: 60 * time.Second}
-	resp, err := cl.Get(in)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, in, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := cl.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +115,11 @@ func serverVersion(swaggerURL string) (string, error) {
 	base := strings.TrimSuffix(u.Path, "/swagger.v1.json")
 	u.Path, u.RawQuery = base+"/api/v1/version", ""
 	cl := &http.Client{Timeout: 30 * time.Second}
-	resp, err := cl.Get(u.String())
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, u.String(), nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := cl.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -170,7 +179,13 @@ func Convert(raw []byte, version string) (*endpoints.Index, error) {
 	if len(sw.Paths) == 0 {
 		return nil, errors.New("swagger has no paths")
 	}
-	sum := sha256.Sum256(raw)
+	// Hash only the paths: basePath, host and info differ between the file
+	// and the live instance, which would make the index look stale.
+	canon, err := json.Marshal(sw.Paths)
+	if err != nil {
+		return nil, fmt.Errorf("canonicalize paths: %w", err)
+	}
+	sum := sha256.Sum256(canon)
 	idx := &endpoints.Index{V: version, SwaggerSHA256: hex.EncodeToString(sum[:])}
 	paths := make([]string, 0, len(sw.Paths))
 	for p := range sw.Paths {

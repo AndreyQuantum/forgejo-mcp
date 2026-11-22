@@ -9,12 +9,22 @@ linters:
     - nolintlint
     - unconvert
     - usestdlibvars
+  settings:
+    errcheck:
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
   exclusions:
     rules:
+      - linters:
+          - errcheck
+        text: "Close|os.Remove"
       - path: _test\.go
         linters:
           - errcheck
-        text: "Close"
+          - usestdlibvars
+          - noctx
 formatters:
   enable:
     - gofumpt

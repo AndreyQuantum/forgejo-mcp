@@ -35,6 +35,20 @@ var (
 	date    = ""
 )
 
+// versionLine is the --version output: version plus commit and date when set.
+func versionLine() string {
+	s := "forgejo-mcp " + buildVersion()
+	switch {
+	case commit != "" && date != "":
+		s += " (" + commit + ", " + date + ")"
+	case commit != "":
+		s += " (" + commit + ")"
+	case date != "":
+		s += " (" + date + ")"
+	}
+	return s
+}
+
 func buildVersion() string {
 	if version != "" {
 		return version
@@ -61,7 +75,7 @@ func run(args []string, getenv func(string) string) int {
 		fmt.Fprint(os.Stdout, config.Usage)
 		return 0
 	case cfg.ShowVersion:
-		fmt.Fprintf(os.Stdout, "forgejo-mcp %s\n", buildVersion())
+		fmt.Fprintln(os.Stdout, versionLine())
 		return 0
 	}
 
@@ -121,7 +135,7 @@ func run(args []string, getenv func(string) string) int {
 		fmt.Fprintln(os.Stderr, "forgejo-mcp:", err)
 		return 1
 	}
-	if cfg.Token == "" && !(cfg.Transport == "http" && cfg.PassThroughToken()) {
+	if cfg.Token == "" && (cfg.Transport != "http" || !cfg.PassThroughToken()) {
 		fmt.Fprintln(os.Stderr, "forgejo-mcp: warning: no FORGEJO_TOKEN; running anonymously (public repos, read-only)")
 	}
 
@@ -181,7 +195,7 @@ func serveHTTP(ctx context.Context, cfg *config.Config, srv *mcp.Server) int {
 		IdleTimeout:       120 * time.Second,
 		// No WriteTimeout: long SSE responses (ci_wait) would be cut.
 	}
-	ln, err := net.Listen("tcp", cfg.Addr)
+	ln, err := (&net.ListenConfig{}).Listen(ctx, "tcp", cfg.Addr)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "forgejo-mcp:", err)
 		return 1

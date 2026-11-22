@@ -132,9 +132,12 @@ func TestSettingsHookRepoLifecycle(t *testing.T) {
 		t.Errorf("edit clear: %v", raw)
 	}
 
-	mustOK(t, "hook", map[string]any{"action": "edit", "repo": repo, "id": id, "authorization_header": ""})
-	if raw = settingsRawHook(t, base+ids); raw["authorization_header"] != "" {
-		t.Errorf("header not cleared: %v", raw)
+	// Forgejo keeps the old header on an empty PATCH value, so the tool refuses locally.
+	if msg := mustErr(t, "hook", map[string]any{"action": "edit", "repo": repo, "id": id, "authorization_header": ""}); !strings.Contains(msg, "cannot be cleared") {
+		t.Errorf("header clear: %s", msg)
+	}
+	if raw = settingsRawHook(t, base+ids); raw["authorization_header"] != "Bearer it-header-2" {
+		t.Errorf("header changed: %v", raw)
 	}
 	if msg := mustErr(t, "hook", map[string]any{"action": "edit", "repo": repo, "id": id, "secret": "x"}); !strings.Contains(msg, "secret cannot be changed") {
 		t.Errorf("secret edit: %s", msg)

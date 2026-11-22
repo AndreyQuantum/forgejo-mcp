@@ -490,3 +490,32 @@ func TestAnnotations(t *testing.T) {
 	wr.Actions = wr.Actions[2:3]
 	check("write tool", false, &fa, wr)
 }
+
+func TestDeniedEndpointsKeepSharedOnes(t *testing.T) {
+	noop := func(*tools.Call, *dummyParams) (*tools.Result, error) { return nil, nil }
+	r := tools.NewRegistry()
+	r.Add(tools.Spec{
+		Name: "repo", Toolset: "repos", Description: "r", Params: dummyParams{},
+		Actions: []tools.Action{tools.NewAction("get", tools.Read, noop, tools.Endpoints("GET /repos/{owner}/{repo}"))},
+	})
+	r.Add(tools.Spec{
+		Name: "ci_wait", Toolset: "actions", Description: "w", Params: dummyParams{},
+		Actions: []tools.Action{tools.NewAction("run", tools.Read, noop,
+			tools.Endpoints("GET /repos/{owner}/{repo}", "GET /repos/{owner}/{repo}/actions/runs"))},
+	})
+	cfg := config.Defaults()
+	cfg.Toolsets = "repos"
+	if err := r.Build(cfg); err != nil {
+		t.Fatal(err)
+	}
+	den := r.DeniedEndpoints()
+	if _, ok := den["GET /repos/{owner}/{repo}"]; ok {
+		t.Error("an endpoint of an enabled action is denied")
+	}
+	if den["GET /repos/{owner}/{repo}/actions/runs"] != "ci_wait.run" {
+		t.Errorf("exclusive endpoint not denied: %v", den)
+	}
+	if got := r.CoveredBy("GET /repos/{owner}/{repo}"); got != "repo.get" {
+		t.Errorf("CoveredBy = %q", got)
+	}
+}

@@ -519,7 +519,7 @@ func (c *Client) newRequest(ctx context.Context, r Request, u *url.URL, payload 
 }
 
 func (c *Client) sameHost(u *url.URL) bool {
-	return c.base != nil && strings.EqualFold(u.Host, c.base.Host)
+	return c.base != nil && strings.EqualFold(u.Host, c.base.Host) && strings.EqualFold(u.Scheme, c.base.Scheme)
 }
 
 func (c *Client) transportError(parent, actx context.Context, r Request, tmo time.Duration, err error) *APIError {

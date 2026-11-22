@@ -124,11 +124,15 @@ The full per-action reference is generated into [docs/TOOLS.md](docs/TOOLS.md) (
 Output is compact text, built for reading by a model:
 
 ```
-# prs 3/3 page 1/1
-#12 open | fix login redirect | alice -> main | checks: success | 2026-11-20 14:02
-#11 open | docs: update readme | bob -> main | checks: pending | 2026-11-19 09:40
-#9 merged | bump deps | alice -> main | 2026-11-18 17:15
+# prs 2/3 page 1/1 (1 hidden)
+#42 open | Fix thing 42 | by alice | fix/login->main | [bug] | @bob | upd 2026-11-22 10:15
+#40 draft | WIP: new cache | by bob | cache->main | conflict | fork:bob/r | upd 2026-11-20 08:01
 ```
+
+Measured on Forgejo 17.0.2 (details in [docs/VERIFIED.md](docs/VERIFIED.md)):
+
+- Tool schemas: the 29 default tools are 51,804 bytes of `tools/list` JSON (about 13k tokens); with every toolset on, 30 tools are 55,529 bytes. The server instructions are 551 characters and the widest tool (`repo`) is 4,259 bytes.
+- Output against the raw API JSON on a small test repository: `pr list` 89 B instead of 6,490 B, `pr get` 233 B instead of 6,488 B, `ci_failure` 294 B instead of about 10,000 B (runs, jobs and log), `run log tail=2` 164 B instead of the 462 B log. Long logs and large lists save far more.
 
 Lists show `page x/y` and the `next:` page. Long output is truncated with a marker that says how to get the rest. Only `forgejo_api` returns (compact) JSON.
 

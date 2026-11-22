@@ -116,7 +116,7 @@ func TestWorkflowsGiteaFallbackOnlyOn404(t *testing.T) {
 	if !strings.HasPrefix(text, "# workflows 1/1 dir: .gitea/workflows\nci.yml |") {
 		t.Fatalf("got %q", text)
 	}
-	if got := s.keys(); !(indexOf(got, "GET /repos/o/r/contents/.forgejo/workflows") < indexOf(got, "GET /repos/o/r/contents/.gitea/workflows")) {
+	if got := s.keys(); indexOf(got, "GET /repos/o/r/contents/.forgejo/workflows") >= indexOf(got, "GET /repos/o/r/contents/.gitea/workflows") {
 		t.Fatalf("directory order: %v", got)
 	}
 

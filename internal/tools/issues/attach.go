@@ -213,7 +213,7 @@ func (t *attachTool) download(c *tools.Call, p *attachParams) (*tools.Result, er
 		return err
 	}}
 	final, n, err := roots.SaveFile(dest, src)
-	if dlErr := src.finish(); dlErr != nil && !(err != nil && errors.Is(dlErr, io.ErrClosedPipe)) {
+	if dlErr := src.finish(); dlErr != nil && (err == nil || !errors.Is(dlErr, io.ErrClosedPipe)) {
 		return nil, dlErr
 	}
 	if err != nil {

@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -152,7 +153,7 @@ func TestActionsE2E(t *testing.T) {
 		t.Errorf("runner queue:\n%s", q)
 	}
 	w := mustOK(t, "ci_wait", map[string]any{"repo": repo, "sha": head, "timeout": 5})
-	if !strings.Contains(w, "verdict: timeout") || !(strings.Contains(w, "no online runner") || strings.Contains(w, "runners offline")) {
+	if !strings.Contains(w, "verdict: timeout") || (!strings.Contains(w, "no online runner") && !strings.Contains(w, "runners offline")) {
 		t.Errorf("ci_wait without runner:\n%s", w)
 	}
 
@@ -277,6 +278,14 @@ func TestActionsE2E(t *testing.T) {
 		t.Logf("tail output has no next_offset marker:\n%s", tail)
 	}
 
+	// Output size against the raw API JSON (numbers go into docs/VERIFIED.md).
+	_, rawRuns := rawAPI(t, http.MethodGet, "/repos/"+repo+"/actions/runs", nil)
+	_, rawRunJobs := rawAPI(t, http.MethodGet, "/repos/"+repo+"/actions/runs/"+strconv.Itoa(runID)+"/jobs", nil)
+	_, rawLog := rawAPI(t, http.MethodGet, "/repos/"+repo+"/actions/jobs/"+strconv.Itoa(badJob)+"/logs", nil)
+	t.Logf("SIZE ci_failure: tool %d B; raw runs+jobs+log %d B", len(fail), len(rawRuns)+len(rawRunJobs)+len(rawLog))
+	t.Logf("SIZE run get: tool %d B; raw run jobs %d B", len(get), len(rawRunJobs))
+	t.Logf("SIZE run log tail=2: tool %d B; raw job log %d B", len(tail), len(rawLog))
+
 	// 6. rerun the failing job; it fails again but the machinery works.
 	re := mustOK(t, "run", map[string]any{"action": "rerun_job", "repo": repo, "run": runID, "job": badJob})
 	if !strings.HasPrefix(re, "ok:") {
@@ -332,6 +341,12 @@ func TestActionsE2E(t *testing.T) {
 		t.Fatalf("pr create:\n%s", pr)
 	}
 	n, _ := strconv.Atoi(nm[1])
+	prList := mustOK(t, "pr", map[string]any{"action": "list", "repo": repo, "state": "all"})
+	_, rawPRs := rawAPI(t, http.MethodGet, "/repos/"+repo+"/pulls?state=all", nil)
+	t.Logf("SIZE pr list: tool %d B; raw %d B", len(prList), len(rawPRs))
+	prGet := mustOK(t, "pr", map[string]any{"action": "get", "repo": repo, "n": n})
+	_, rawPR := rawAPI(t, http.MethodGet, "/repos/"+repo+"/pulls/"+strconv.Itoa(n), nil)
+	t.Logf("SIZE pr get: tool %d B; raw %d B", len(prGet), len(rawPR))
 	pw := mustOK(t, "ci_wait", map[string]any{"repo": repo, "pr": n, "timeout": 100})
 	if !strings.Contains(pw, "verdict: ") || strings.Contains(pw, "verdict: timeout") {
 		t.Errorf("ci_wait pr:\n%s", pw)

@@ -525,3 +525,12 @@ func TestAPIAllPagesStopsOnChars(t *testing.T) {
 		t.Errorf("chars stop:\n%.400s", out)
 	}
 }
+
+func TestMaskSecrets(t *testing.T) {
+	v := map[string]any{"id": 1.0, "authorization_header": "Bearer x", "list": []any{map[string]any{"secret": "s", "url": "u"}}, "empty": map[string]any{"authorization_header": ""}}
+	maskSecrets(v)
+	b, _ := json.Marshal(v)
+	if s := string(b); strings.Contains(s, "Bearer x") || strings.Contains(s, `"s"`) || !strings.Contains(s, "(hidden)") || !strings.Contains(s, `"authorization_header":""`) {
+		t.Errorf("masked = %s", s)
+	}
+}

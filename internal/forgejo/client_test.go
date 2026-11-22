@@ -731,3 +731,17 @@ func TestConcurrentUse(t *testing.T) {
 	}
 	wg.Wait()
 }
+
+func TestSameHostRequiresSameScheme(t *testing.T) {
+	c := &Client{base: &url.URL{Scheme: "https", Host: "forge.example"}}
+	for u, want := range map[string]bool{
+		"https://forge.example/x": true,
+		"http://forge.example/x":  false,
+		"https://other.example/x": false,
+	} {
+		pu, _ := url.Parse(u)
+		if got := c.sameHost(pu); got != want {
+			t.Errorf("sameHost(%s) = %v, want %v", u, got, want)
+		}
+	}
+}

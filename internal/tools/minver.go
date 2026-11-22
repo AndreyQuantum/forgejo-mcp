@@ -7,8 +7,10 @@ import (
 )
 
 // minMajorTable holds per-action minimum Forgejo majors (section 5.4). The
-// values are `[v]` items: adjust after the live integration run (WP19).
+// values were checked against the Forgejo 17.0.2 sources; see docs/VERIFIED.md.
 var minMajorTable = map[string]int{
+	"ci_failure.run":  16,
+	"ci_wait.run":     16,
 	"run.list":        16,
 	"run.job":         16,
 	"run.log":         16,

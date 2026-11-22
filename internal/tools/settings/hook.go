@@ -32,7 +32,7 @@ type hookParams struct {
 	Secret              *string  `json:"secret,omitempty" jsonschema:"signing secret; settable at create only"`
 	Events              []string `json:"events,omitempty" jsonschema:"event names, default [push]"`
 	BranchFilter        *string  `json:"branch_filter,omitempty" jsonschema:"branch glob filter; empty string clears"`
-	AuthorizationHeader *string  `json:"authorization_header,omitempty" jsonschema:"Authorization header sent to the target; empty string clears (edit)"`
+	AuthorizationHeader *string  `json:"authorization_header,omitempty" jsonschema:"Authorization header sent to the target; cannot be cleared via API on edit"`
 	Active              *bool    `json:"active,omitempty" jsonschema:"enabled; default true on create"`
 	Ref                 string   `json:"ref,omitempty" jsonschema:"branch or tag for the test delivery; default branch"`
 	Page                int      `json:"page,omitempty" jsonschema:"page, from 1"`
@@ -282,6 +282,10 @@ func hookEdit(c *tools.Call, p *hookParams) (*tools.Result, error) {
 	if p.URL != nil && strVal(p.URL) == "" {
 		return c.Fail("invalid: url must not be empty"), nil
 	}
+	if p.AuthorizationHeader != nil && *p.AuthorizationHeader == "" {
+		// Forgejo keeps the old header when PATCH carries an empty one (verified on 17.0.2).
+		return c.Fail("invalid: the authorization header cannot be cleared via API on this server; delete and recreate the hook"), nil
+	}
 	var changed []string
 	for _, f := range []struct {
 		name string
@@ -295,11 +299,7 @@ func hookEdit(c *tools.Call, p *hookParams) (*tools.Result, error) {
 		{"active", p.Active != nil},
 	} {
 		if f.set {
-			name := f.name
-			if name == "authorization_header" && *p.AuthorizationHeader == "" {
-				name += " (cleared)"
-			}
-			changed = append(changed, name)
+			changed = append(changed, f.name)
 		}
 	}
 	if len(changed) == 0 {

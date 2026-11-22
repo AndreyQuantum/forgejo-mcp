@@ -420,7 +420,7 @@ func runCases(t *testing.T, cases []tcase) {
 			if isErr != tc.isErr {
 				t.Fatalf("isErr = %v, want %v; output:\n%s", isErr, tc.isErr, got)
 			}
-			if reqs := f.requests(); !reflect.DeepEqual(reqs, append([]string(nil), tc.want...)) && !(len(reqs) == 0 && len(tc.want) == 0) {
+			if reqs := f.requests(); !reflect.DeepEqual(reqs, append([]string(nil), tc.want...)) && (len(reqs) != 0 || len(tc.want) != 0) {
 				t.Errorf("requests:\n got %q\nwant %q", reqs, tc.want)
 			}
 			if strings.Contains(got, "tok-secret") {

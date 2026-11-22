@@ -481,7 +481,7 @@ func TestAdminActions(t *testing.T) {
 			if isErr != tc.isErr {
 				t.Fatalf("isErr = %v, want %v: %s", isErr, tc.isErr, got)
 			}
-			if reqs := f.all(); !reflect.DeepEqual(reqs, append([]reqRec(nil), tc.want...)) && !(len(reqs) == 0 && len(tc.want) == 0) {
+			if reqs := f.all(); !reflect.DeepEqual(reqs, append([]reqRec(nil), tc.want...)) && (len(reqs) != 0 || len(tc.want) != 0) {
 				t.Errorf("requests:\n got %+v\nwant %+v", reqs, tc.want)
 			}
 			for _, secret := range []string{"S3cret-pw!", "N3w-secret!"} {

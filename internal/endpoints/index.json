@@ -1,4 +1,4 @@
-{"v":"17.0.2","n":512,"swagger_sha256":"2e0d3e8aac8800668dfa573b976ebe7aa05a63482a82c43872363ed7b3f467db","ops":[
+{"v":"17.0.2","n":512,"swagger_sha256":"9a4ff7ca180abcb0ae4981f0d1f9bdb8f12fdae3636a2d30d82a38eacb0937ec","ops":[
 {"m":"GET","p":"/actions/run","id":"getActionsRun","s":"Get a workflow run associated with a token","t":"miscellaneous"},
 {"m":"GET","p":"/activitypub/actor","id":"activitypubInstanceActor","s":"Returns the instance's Actor","t":"activitypub","sc":"activitypub"},
 {"m":"POST","p":"/activitypub/actor/inbox","id":"activitypubInstanceActorInbox","s":"Send to the inbox","t":"activitypub","sc":"activitypub"},

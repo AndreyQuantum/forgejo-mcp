@@ -10,13 +10,6 @@ import (
 	"github.com/AndreyQuantum/forgejo-mcp/internal/tools"
 )
 
-func yesNo(b bool) string {
-	if b {
-		return "yes"
-	}
-	return "no"
-}
-
 // userLine renders `alice | Alice A | admin` (inactive accounts say so).
 func userLine(c *tools.Call) func(account) string {
 	return func(u account) string {

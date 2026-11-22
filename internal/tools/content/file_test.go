@@ -197,7 +197,7 @@ func TestFileTreeFollowsServerPages(t *testing.T) {
 				_, _ = w.Write([]byte(`{"tree":[{"path":"a","type":"blob"}],"truncated":true}`))
 				return
 			}
-			_, _ = w.Write([]byte(fmt.Sprintf(`{"tree":[{"path":"b%d","type":"blob"}],"truncated":false}`, n)))
+			_, _ = fmt.Fprintf(w, `{"tree":[{"path":"b%d","type":"blob"}],"truncated":false}`, n)
 		},
 	})
 	got := te.ok(map[string]any{"action": "tree"})

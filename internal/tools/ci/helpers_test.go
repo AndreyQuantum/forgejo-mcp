@@ -36,7 +36,21 @@ func newFake(r routes) *fakeServer {
 	if _, ok := f.routes["GET /settings/api"]; !ok {
 		f.routes["GET /settings/api"] = `{"default_paging_num":20,"max_response_items":50}`
 	}
+	if _, ok := f.routes["GET /version"]; !ok {
+		f.routes["GET /version"] = `{"version":"17.0.2+gitea-1.22.0"}`
+	}
 	return f
+}
+
+// serverCalls returns the recorded calls without the version probe.
+func (f *fakeServer) serverCalls() []string {
+	var out []string
+	for _, c := range f.calls {
+		if c != "GET /version" {
+			out = append(out, c)
+		}
+	}
+	return out
 }
 
 func (f *fakeServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -179,14 +179,7 @@ func Convert(raw []byte, version string) (*endpoints.Index, error) {
 	if len(sw.Paths) == 0 {
 		return nil, errors.New("swagger has no paths")
 	}
-	// Hash only the paths: basePath, host and info differ between the file
-	// and the live instance, which would make the index look stale.
-	canon, err := json.Marshal(sw.Paths)
-	if err != nil {
-		return nil, fmt.Errorf("canonicalize paths: %w", err)
-	}
-	sum := sha256.Sum256(canon)
-	idx := &endpoints.Index{V: version, SwaggerSHA256: hex.EncodeToString(sum[:])}
+	idx := &endpoints.Index{V: version}
 	paths := make([]string, 0, len(sw.Paths))
 	for p := range sw.Paths {
 		paths = append(paths, p)
@@ -230,6 +223,15 @@ func Convert(raw []byte, version string) (*endpoints.Index, error) {
 		}
 	}
 	idx.N = len(idx.Ops)
+	// Hash the derived operations, not the swagger text: the template file
+	// and a live instance render descriptions differently (sub-URL, app
+	// name), while the operations, params and scopes are what matter.
+	canonOps, err := json.Marshal(idx.Ops)
+	if err != nil {
+		return nil, fmt.Errorf("canonicalize ops: %w", err)
+	}
+	sum := sha256.Sum256(canonOps)
+	idx.SwaggerSHA256 = hex.EncodeToString(sum[:])
 	return idx, nil
 }
 

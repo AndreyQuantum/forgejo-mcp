@@ -37,3 +37,5 @@ func CheckMinVersion(tool, action string, declared int, v forgejo.Version) strin
 	}
 	return tool + "." + action + " needs Forgejo >= " + strconv.Itoa(need) + " (server is " + v.String() + ")"
 }
+
+func itoa(n int) string { return strconv.Itoa(n) }

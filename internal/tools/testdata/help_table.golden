@@ -1,0 +1,11 @@
+dummy: Dummy tool for framework tests.
+repo (owner/name) defaults to the detected repository. Modes: R read, W write, D destructive (needs confirm). * = required.
+get [R] n* - show one
+list [R] n - list all
+create [W] body* labels draft - create one
+remove [D] confirm - delete
+boom [R] - panics
+size [R] max_chars full - limits
+newer [R] - needs 99
+token [R] - echoes the token
+help=<action> shows the full parameter list of one action.

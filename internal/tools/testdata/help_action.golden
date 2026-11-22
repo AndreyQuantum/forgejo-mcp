@@ -1,0 +1,7 @@
+dummy.create [W] - create one
+  repo (string) owner/name; defaults to the detected repository
+  body* (string) comment text
+  labels (string[]) label names
+  draft (boolean) create as draft
+needs: repo write
+endpoint: POST /repos/{owner}/{repo}/pulls

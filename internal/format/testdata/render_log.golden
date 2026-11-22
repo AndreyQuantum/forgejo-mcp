@@ -1,0 +1,4 @@
+2: FAIL TestSessionRefresh (0.02s)
+FAIL TestSessionRefresh (0.02s)
+    session_test.go:44: expected 200, got 500
+exit status 1

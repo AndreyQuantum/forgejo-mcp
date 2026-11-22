@@ -1,0 +1,6 @@
+# prs 2/5 page 1/3 next: page=2
+#42 open | Fix the login | by alice | [bug,ui] | @bob,@eve | upd 2026-11-22 10:15
+#41 merged | Docs | by bob | upd 2026-11-21 08:00
+body: 0123456789
+  a
+  [truncated: 12 of 17 chars; pass body_max=0]

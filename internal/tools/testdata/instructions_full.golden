@@ -1,0 +1,5 @@
+forgejo-mcp for forgejo.example.com (Forgejo 17.0.2). Every tool: action=help lists its params; unlisted params are reported, not fatal.
+Default repo: o/r.
+PR flow: pr create -> ci_wait pr=N -> pr merge (when_green=true merges when checks pass). CI red: ci_failure pr=N, then run log job=ID grep=...
+Waits return before 55s with verdict timeout and a resume line: call the same tool again.
+Not covered by a tool: forgejo_endpoints q=... then forgejo_api. Lists take page/limit; the header shows next. Destructive actions need confirm=<exact target>.

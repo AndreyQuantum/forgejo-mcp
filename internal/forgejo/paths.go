@@ -35,4 +35,30 @@ func Path(parts ...string) string {
 
 // EscapeKeepPct escapes per segment keeping '/', but leaves valid %XX
 // sequences as given (no %20 -> %2520). Used by forgejo_api only.
-func EscapeKeepPct(s string) string { panic("WP2") }
+func EscapeKeepPct(s string) string {
+	const hex = "0123456789ABCDEF"
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c == '%' && i+2 < len(s) && isHex(s[i+1]) && isHex(s[i+2]):
+			b.WriteString(s[i : i+3])
+			i += 2
+		case c == '/', isUnreserved(c), strings.IndexByte("!$&'()*+,;=:@", c) >= 0:
+			b.WriteByte(c)
+		default:
+			b.WriteByte('%')
+			b.WriteByte(hex[c>>4])
+			b.WriteByte(hex[c&15])
+		}
+	}
+	return b.String()
+}
+
+func isHex(c byte) bool {
+	return c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F'
+}
+
+func isUnreserved(c byte) bool {
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '-' || c == '.' || c == '_' || c == '~'
+}

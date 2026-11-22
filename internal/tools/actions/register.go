@@ -6,3 +6,8 @@ import "github.com/AndreyQuantum/forgejo-mcp/internal/tools"
 func Register(r *tools.Registry) {
 	registerRun(r)
 }
+
+// registerRun registers the run tool.
+func registerRun(r *tools.Registry) {
+	r.Add(runSpec())
+}

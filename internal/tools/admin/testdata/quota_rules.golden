@@ -1,0 +1,3 @@
+# quota rules 2/2 page 1/1
+all | limit 1.0GB | size:all
+nolimit | limit unlimited | size:repos:all

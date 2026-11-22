@@ -1,0 +1,13 @@
+pr #42 open | Fix thing 42
+by alice | fix/login->main (8a1b2c3d) | [bug] | @bob
+created 2026-11-21 09:00 | updated 2026-11-22 10:15 | +12 -3 files:2 | c:3
+url: https://forge.example/o/r/pulls/42
+mergeable: yes
+files: 2
+  M a.go +4 -1
+  R old.go->new.go +0 -0
+commits: 1
+  77aa11bb 2026-11-21 alice | Fix race
+comments: 2 (last 2)
+  c1 x 2026-11-21 10:00 | one
+  c2 y 2026-11-21 11:00 | two lines

@@ -1,0 +1,12 @@
+commit 8a1b2c3d
+author: Alice A (@alice)
+date: 2026-11-22 10:15
+parents: 11223344
+files: 3
+  A docs/new.md
+  D old.txt
+  M src/a.go
+message:
+  Fix login race
+  
+  The lock was taken twice.

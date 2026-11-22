@@ -1,0 +1,7 @@
+branch feat/search
+commit: 01234567 Add search
+date: 2026-11-22 10:15
+protected: yes
+you_can: push
+required_approvals: 2
+status_checks: ci/build

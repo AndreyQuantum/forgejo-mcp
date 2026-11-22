@@ -1,0 +1,11 @@
+# paths 10/10 page 1/1
+README.md
+docs/
+docs/guide.md
+docs/img/
+docs/img/logo.png
+src/
+src/a.go
+src/b_test.go
+src/pkg/
+src/pkg/c.go

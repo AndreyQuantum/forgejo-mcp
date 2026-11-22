@@ -1,0 +1,2 @@
+verdict: success | waited 0s | run 1236 no.58 (ci.yml, pull_request #42)
+jobs: 2 ok (build, lint)

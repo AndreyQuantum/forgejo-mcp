@@ -1,0 +1,21 @@
+repo alice/demo
+visibility: public
+flags: fork
+description: A demo repo with two lines
+website: https://demo.example.com
+default_branch: main
+language: Go
+size: 2.1MB
+topics: go,mcp
+counts: stars:12 forks:2 issues:3 prs:1
+perms: admin,push,pull
+updated: 2026-11-22 10:15
+url: https://forgejo.example.com/alice/demo
+parent: bob/demo
+features: issues,pulls,wiki,actions,releases
+clone_url: https://forgejo.example.com/alice/demo.git
+ssh_url: git@forgejo.example.com:alice/demo.git
+merge_styles: merge,rebase,squash
+default_merge_style: merge
+default_update_style: merge
+delete_branch_after_merge: default

@@ -1,0 +1,3 @@
+state: failure (1/3 ok) sha 8a1b2c3d
+failure ci / build (push) | Failing after 12s | https://forgejo.example.com/o/r/actions/runs/56
+pending ci / test (push)

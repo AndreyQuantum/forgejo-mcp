@@ -1,0 +1,11 @@
+hook <n>
+scope: repo owner/repo
+type: forgejo
+state: active
+events: push,pull_request,pull_request_assign,pull_request_label,pull_request_milestone,pull_request_comment,pull_request_review_approved,pull_request_review_rejected,pull_request_review_comment,pull_request_sync,pull_request_review_request
+branch_filter: main
+url: http://hooks.example.test/hook
+content_type: json
+authorization_header: set (hidden)
+created: <time>
+updated: <time>

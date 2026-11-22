@@ -1,0 +1,7 @@
+notify: Notifications: count, list, get, mark read/unread/pinned.
+Modes: R read, W write, D destructive (needs confirm). * = required.
+count [R] - number of unread notifications
+list [R] repo status types since page limit - notifications (default unread), optionally of one repo
+get [R] id* - one notification thread
+mark [W] id repo to - set status of one thread (id) or of all notifications up to now
+help=<action> shows the full parameter list of one action.

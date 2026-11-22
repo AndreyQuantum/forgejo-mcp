@@ -1,0 +1,7 @@
+ok: registered runner 7 "ci-1" (repo scope)
+uuid: 3f2b0000-0000-4000-8000-000000000001
+token: 0123456789abcdef0123456789abcdef01234567
+address: https://forgejo.example.com
+.runner: {"id":7,"uuid":"3f2b0000-0000-4000-8000-000000000001","name":"ci-1","token":"0123456789abcdef0123456789abcdef01234567","address":"https://forgejo.example.com","labels":["docker:docker://node:20","host"]}
+start: write the .runner line to <dir>/.runner, set runner.file: .runner in config.yml, then run: forgejo-runner daemon --config config.yml
+note: store the token now; shown once

@@ -1,0 +1,9 @@
+compare main...feature/x
+total_commits: 3
+# commits 2/3 page 1/2 next: page=2
+8a1b2c3d 2026-11-22 alice | Third
+11223344 2026-11-21 bob | Second
+files: 3 unique (status merged across commits; not a net diff)
+  A a.go
+  D gone.txt
+  M b.go

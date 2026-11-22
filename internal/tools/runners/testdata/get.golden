@@ -1,0 +1,10 @@
+runner 7
+name: build-1
+status: idle
+level: repo
+uuid: 3f2b0000-0000-4000-8000-000000000001
+version: v6.3.1
+labels: [docker:docker://node:20]
+ephemeral: true
+description: main builder
+repo_id: 12

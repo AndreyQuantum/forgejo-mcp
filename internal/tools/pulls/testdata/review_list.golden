@@ -1,0 +1,7 @@
+# reviews 3/3 page 1/1
+requested: carol,team:devs
+r77 alice approve official | 8a1b2c3d | c:2 | 2026-11-22 10:15 | Looks good
+  rc9 src/a.go:42 alice (resolved by bob) | nit
+  rc10 src/a.go:-17 alice | why
+r78 bob request_changes | 11111111 | stale | dismissed | 2026-11-22 10:20 | fix the race
+r82 me pending | my draft

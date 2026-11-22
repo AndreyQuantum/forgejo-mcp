@@ -1,0 +1,4 @@
+# statuses 3/3 page 1/2 next: page=2
+failure ci / build (push) | Failing after 12s | https://forgejo.example.com/o/r/actions/runs/56
+pending ci / test (push)
+success lint

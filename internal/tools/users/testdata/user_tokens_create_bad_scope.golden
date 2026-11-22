@@ -1,0 +1,1 @@
+error: invalid: scope "read:everything"; valid: read|write:<activitypub,admin,issue,misc,notification,organization,package,repository,user>, all, public-only

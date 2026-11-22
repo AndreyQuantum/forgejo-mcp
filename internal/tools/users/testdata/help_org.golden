@@ -1,0 +1,22 @@
+org: Organizations and teams: get, list, create, edit, delete, members, team_*.
+Modes: R read, W write, D destructive (needs confirm). * = required.
+list [R] all page limit - my organizations (all=true: every org)
+get [R] org* - one organization
+create [W] name* full_name description visibility website location email - create an organization (name = its username)
+edit [W] org* full_name description visibility website location email - edit organization profile fields
+delete [D] org* confirm - delete an organization (confirm = org name)
+rename [W] org* new_name* - rename an organization
+members [R] org* page limit - organization members
+member_remove [W] org* user* - remove a user from the organization
+teams [R] org* page limit - teams of an organization
+team_get [R] team_id* - one team with its unit access
+team_create [W] org* name* description permission units_map includes_all_repositories can_create_org_repo - create a team (permission default read, all units)
+team_edit [W] team_id* name description permission units_map includes_all_repositories can_create_org_repo - edit a team; unset fields keep their value
+team_delete [D] team_id* confirm - delete a team (confirm = team name)
+team_members [R] team_id* page limit - members of a team
+team_add_member [W] team_id* user* - add a user to a team (may send an email invite instead)
+team_remove_member [W] team_id* user* - remove a user from a team
+team_repos [R] team_id* page limit - repositories of a team
+team_add_repo [W] team_id* repo* - add a repo (owner/name) to a team
+team_remove_repo [W] team_id* repo* - remove a repo (owner/name) from a team
+help=<action> shows the full parameter list of one action.

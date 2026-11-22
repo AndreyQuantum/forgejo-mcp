@@ -1,0 +1,10 @@
+org.team_edit [W] - edit a team; unset fields keep their value
+  team_id* (integer) team id (see teams)
+  name (string) org username (create) or team name
+  description (string)
+  permission (string) team permission: read|write|admin
+  units_map (object) team unit access, e.g. {code: write, issues: read}
+  includes_all_repositories (boolean) team covers every org repo
+  can_create_org_repo (boolean) team may create repos
+needs: org owner
+endpoint: PATCH /teams/{id}

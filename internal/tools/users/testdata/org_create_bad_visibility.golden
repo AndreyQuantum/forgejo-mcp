@@ -1,0 +1,1 @@
+error: invalid: visibility "secret"; valid: public|limited|private

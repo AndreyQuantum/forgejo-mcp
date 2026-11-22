@@ -1,0 +1,3 @@
+ok: created token id 9 "ci" for alice scopes read:repository,write:issue repos o/r
+token: 0123456789abcdef0123456789abcdef01234567
+note: the secret is shown once; store it now

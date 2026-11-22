@@ -1,0 +1,2 @@
+group default
+  rule all | limit 1.0GB | size:all

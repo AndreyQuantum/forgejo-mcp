@@ -1,0 +1,11 @@
+verdict: failure | waited 0s | run 1234 no.56 (ci.yml, push main)
+jobs: 1 failed (build)
+failed job 5678 "build" step 1 "Run tests" (12s)
+  matches: 5: FAIL TestSessionRefresh (0.02s)
+  --- tail (last 6 lines) ---
+  ok step 0
+  ok step 1
+  ok step 2
+  ok step 3
+  FAIL TestSessionRefresh (0.02s)
+  exit status 1

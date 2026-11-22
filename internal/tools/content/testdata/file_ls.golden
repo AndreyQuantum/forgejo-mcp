@@ -1,0 +1,6 @@
+# entries 5 | / | ref main
+d docs/
+d src/
+l link -> src/a.go
+f main.go 1.2KB
+s vendor

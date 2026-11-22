@@ -1,0 +1,11 @@
+hook 2
+scope: repo o/r
+type: forgejo
+state: active
+events: push,pull_request
+branch_filter: main
+url: https://ci.example.com/hook
+content_type: json
+authorization_header: set (hidden)
+created: 2026-11-20 10:00
+updated: 2026-11-21 11:30

@@ -1,0 +1,1 @@
+error: invalid: units_map[code]="everything"; valid: none|read|write|admin|owner

@@ -1,0 +1,3 @@
+# protections 2/2 page 1/1
+rule main | approvals:1 | checks:ci/build* | push-whitelist:2 | block_on_outdated_branch
+rule release/* | merge-whitelist:1

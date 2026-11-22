@@ -1,0 +1,10 @@
+tag v1.1.0
+commit: 12345678
+type: annotated
+object: aaaa1111
+tagger: Alice 2026-11-22 10:15
+target: commit 12345678
+annotation:
+  Release 1.1
+
+  notes

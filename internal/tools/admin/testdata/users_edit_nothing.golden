@@ -1,0 +1,1 @@
+error: invalid: nothing to change; pass at least one of email, password, full_name, login_name, source_id, must_change_password, admin, active, prohibit_login, restricted, visibility

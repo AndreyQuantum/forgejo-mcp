@@ -1,0 +1,6 @@
+package npm foo 1.0.2
+owner: alice
+repo: alice/foo
+by: bob
+created: 2026-11-20 09:30
+url: https://h/alice/-/packages/npm/foo/1.0.2

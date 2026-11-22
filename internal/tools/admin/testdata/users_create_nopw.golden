@@ -1,0 +1,1 @@
+error: invalid: password is required for a local user (or pass source_id of an external auth source)

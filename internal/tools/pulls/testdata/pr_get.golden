@@ -1,0 +1,10 @@
+pr #42 open | Fix thing 42
+by alice | fix/login->main (8a1b2c3d) | [bug] | @bob | ms:v1.2
+created 2026-11-21 09:00 | updated 2026-11-22 10:15 | +12 -3 files:2 | c:3
+url: https://forge.example/o/r/pulls/42
+mergeable: yes
+ci: failure 3/4 | failing: ci / build (push) "Failing after 12s"
+reviews: bob request_changes | dave request_changes | alice2 comment | erin comment | pending: carol,team:devs
+blocked_by: ci:failure, request_changes:bob, request_changes:dave, approvals:0/2
+body:
+  Fixes the race.

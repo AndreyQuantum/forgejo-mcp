@@ -1,0 +1,8 @@
+run 1234 no.56 failure | ci.yml | push main 8a1b2c3d | by alice | 2026-11-22 09:50
+jobs: 1 failed (build)
+failed job 5678 "build" step 1 "Run tests" (12s)
+  matches: 5: FAIL TestSessionRefresh (0.02s)
+  --- tail (last 3 lines) ---
+  ok step 3
+  FAIL TestSessionRefresh (0.02s)
+  exit status 1

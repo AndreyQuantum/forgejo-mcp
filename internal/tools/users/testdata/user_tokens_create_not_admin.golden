@@ -1,0 +1,1 @@
+error: creating tokens needs a site-admin token or the web UI (the API requires the account password, which this server never accepts)

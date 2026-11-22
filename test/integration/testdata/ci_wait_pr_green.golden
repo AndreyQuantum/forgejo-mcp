@@ -1,0 +1,3 @@
+verdict: green | waited <dur> | pr #1 head <sha>
+ci: success 1/1
+mergeable: yes | ready: yes

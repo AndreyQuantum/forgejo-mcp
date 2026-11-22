@@ -1,0 +1,13 @@
+repo alice/demo
+visibility: public
+flags: fork
+description: A demo repo with two lines
+website: https://demo.example.com
+default_branch: main
+language: Go
+size: 2.1MB
+topics: go,mcp
+counts: stars:12 forks:2 issues:3 prs:1
+perms: admin,push,pull
+updated: 2026-11-22 10:15
+url: https://forgejo.example.com/alice/demo

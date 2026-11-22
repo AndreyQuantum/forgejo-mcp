@@ -1,0 +1,17 @@
+issue #12
+state: open
+title: Login fails on Safari
+by: alice
+labels: [bug]
+assignees: @bob
+milestone: v1.2
+due: 2026-12-01
+comments: 3
+locked: yes
+ref: refs/heads/main
+created: 2026-11-20 09:00
+updated: 2026-11-22 10:15
+url: http://forgejo.example.com/o/r/issues/12
+attachments: 4:shot.png(1.2KB)
+body: line one
+  line two

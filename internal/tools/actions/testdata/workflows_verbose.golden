@@ -1,0 +1,2 @@
+# workflows 1/1 dir: .forgejo/workflows
+manual.yml | "Manual" | on: workflow_dispatch | inputs: env(choice dev|prod, required, default dev, "Target environment"), debug(boolean, default false), note(string) | jobs: deploy

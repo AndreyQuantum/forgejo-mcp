@@ -1,0 +1,4 @@
+# workflows 3/3 dir: .forgejo/workflows
+ci.yml | "CI" | on: push,workflow_dispatch
+manual.yml | "Manual" | on: workflow_dispatch | inputs: env(choice dev|prod, required, default dev), debug(boolean, default false)
+strict.yml | "Strict" | on: workflow_dispatch | inputs: token_name(string, required)

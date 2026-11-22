@@ -1,0 +1,8 @@
+user alice
+id: 4
+name: Alice A
+email: alice@example.com
+admin: yes
+visibility: public
+created: 2026-01-02 03:04
+counts: followers:3 following:2 starred:5

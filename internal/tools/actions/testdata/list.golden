@@ -1,0 +1,4 @@
+# runs 3/58 page 1/20 next: page=2
+run 1236 no.58 running | ci.yml | pull_request #12 8a1b2c3d | by alice | 41s | 2026-11-22 10:15
+run 1234 no.56 failure | ci.yml | push main 77aa11bb | by alice | 1m03s | 2026-11-22 09:50
+run 1230 no.55 success | release.yml | push v1.2 5e5e5e5e | by bob | 4m10s | 2026-11-21 18:02

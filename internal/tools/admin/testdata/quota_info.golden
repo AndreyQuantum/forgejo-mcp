@@ -1,0 +1,5 @@
+quota me
+used: repos public 1.5KB private 20B | lfs 0B | attachments issues 10B releases 2.0MB | artifacts 5B | packages 3.0KB
+group default
+  rule all | limit 1.0GB | size:all
+  rule nolimit | limit unlimited | size:repos:all,size:git:lfs

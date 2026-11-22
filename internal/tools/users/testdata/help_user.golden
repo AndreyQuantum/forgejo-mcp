@@ -1,0 +1,16 @@
+user: Users: me, get, search, followers, following, starred, orgs, keys, tokens.
+Modes: R read, W write, D destructive (needs confirm). * = required.
+me [R] - the authenticated account
+get [R] user* - one user or organization profile
+search [R] q sort page limit - find users by name, full name or email
+followers [R] user page limit - followers of user (default me)
+following [R] user page limit - accounts user (default me) follows
+starred [R] user page limit - repos starred by user (default me)
+orgs [R] user page limit - organizations of user (default me)
+keys_list [R] user page limit - SSH keys of user (default me)
+keys_add [W] title* key* read_only - add an SSH key to my account
+keys_delete [W] id* - remove one of my SSH keys
+tokens_list [R] user page limit - access tokens of user (default me), no secrets
+tokens_create [W] name* scopes* user repos - create an access token (needs a site-admin token); secret shown once
+tokens_delete [W] id* user - delete an access token by id (needs a site-admin token)
+help=<action> shows the full parameter list of one action.

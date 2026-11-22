@@ -1,0 +1,7 @@
+team 5
+name: devs
+org: acme
+permission: write
+can_create_org_repo: yes
+units: code:write,issues:read
+description: Developers

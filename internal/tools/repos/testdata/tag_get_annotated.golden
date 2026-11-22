@@ -1,0 +1,5 @@
+tag v1.1.0
+commit: 12345678
+type: annotated
+object: aaaa1111
+message: Release 1.1

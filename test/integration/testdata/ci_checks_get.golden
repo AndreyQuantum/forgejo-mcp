@@ -1,0 +1,3 @@
+state: failure (1/3 ok) sha <sha>
+failure ci/lint | 2 issues | https://ci.example.com/lint/1
+pending ci/external

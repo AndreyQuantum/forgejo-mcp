@@ -1,0 +1,9 @@
+org acme
+id: 1
+name: Acme Inc
+visibility: limited
+description: We build things
+website: https://acme.example
+location: Berlin
+email: hi@acme.example
+created: 2026-03-04 05:06

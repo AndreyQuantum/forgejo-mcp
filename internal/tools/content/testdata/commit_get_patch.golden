@@ -1,0 +1,18 @@
+commit 8a1b2c3d
+author: alice
+date: 2026-11-22 10:15
+parents: 11223344
+files: 1
+  M src/a.go
+message:
+  m
+
+patch:
+=== M src/a.go (+1 -1) ===
+@@ -1,2 +1,2 @@
+-old
++new
+ keep
+=== A docs/new.md (+1 -0) ===
+@@ -0,0 +1 @@
++# hi

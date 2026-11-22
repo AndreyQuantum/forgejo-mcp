@@ -1,0 +1,6 @@
+run 1234 no.56 failure | ci.yml "fix: login body"
+push main 77aa11bb by alice | 2026-11-22 09:50 | 1m03s
+url: http://example/o/r/actions/runs/56
+job 5678 build failure a1 on:docker
+job 5679 lint success a1 on:docker
+job 5680 test skipped a1 needs:build on:docker

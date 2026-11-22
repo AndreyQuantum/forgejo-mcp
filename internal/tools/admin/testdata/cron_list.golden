@@ -1,0 +1,3 @@
+# cron 2/2 page 1/1
+update_mirrors | @every 10m | next 2026-11-22 10:10 | runs:4
+cleanup | @midnight | runs:0

@@ -1,0 +1,3 @@
+# users 2/3 page 1/2 next: page=2
+root | Root | root@example.com | admin
+bob | bob@example.com | inactive | restricted | login-prohibited

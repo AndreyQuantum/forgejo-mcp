@@ -1,0 +1,5 @@
+job 5678 build failure a1 on:docker
+run: 1234
+  step 0 Set up job success 2s
+  step 1 Run tests failure 12s
+  step 2 Complete job skipped

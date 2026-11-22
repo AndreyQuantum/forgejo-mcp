@@ -1,0 +1,3 @@
+# push mirrors 2/2 page 1/1
+remote_mirror_ab12 -> https://x/y.git every 8h0m0s on-commit branches:main last 2026-11-22 10:15 err:boom line2
+remote_mirror_cd34 -> https://x/z.git

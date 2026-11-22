@@ -1,0 +1,3 @@
+ok: dispatched manual.yml on main: run 1235 no.57 jobs: build
+verdict: success | waited 0s | run 1235 no.57 (manual.yml, workflow_dispatch main)
+jobs: 1 ok (build)

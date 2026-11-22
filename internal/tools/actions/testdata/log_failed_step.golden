@@ -1,0 +1,9 @@
+job 5678 "build" attempt 1 step 1 "Run tests" [failure] | 530B total | last 6 lines
+go test ./...
+downloading (x4)
+ok pkg/a 0.01s
+before-failure
+FAIL TestSessionRefresh (0.02s)
+    session_test.go:44: expected 200, got 500
+[truncated: last 6 lines, 138B of 530B; pass tail=N, grep=, or step=]
+next_offset: 530

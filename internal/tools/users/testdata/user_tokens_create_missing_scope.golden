@@ -1,0 +1,2 @@
+error: 403 forbidden: token does not have at least one of required scope(s): [write:admin]
+hint: create a token with scope write:admin
